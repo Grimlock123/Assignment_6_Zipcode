@@ -4,59 +4,82 @@ import axios from "axios";
 class Zipcode extends Component {
     constructor(props) {
         super(props);
-        this.state = { 
-            zip: null, Results: []
-         };
-         this.handleChange = this.handleChange.bind(this);
+        this.state = {
+            Zipcode: '', results
+                : []
+        };
+        this.handleChange = this.handleChange.bind(this);
     }
 
     componentDidUpdate() {
-        axios 
-        .get("http://ctp-zip-api.herokuapp.com/zip/"+ this.state.zip)
-        .then((response) => {
-            const data = response.data;
-            const newZipObj = {
-                ResultList: data
-            };
-            this.setState({Results: newZipObj});
-        })
-        .catch((err) => console.log(err));
+        console.log("got to component did update");
+        axios
+            .get("http://ctp-zip-api.herokuapp.com/zip/" + this.state.Zipcode)
+            .then((response) => {
+                const data = response.data;
+                console.log(data);
+                // const newResultObj = {
+                //     State: data.State,
+                //     TotalWages: data.TotalWages,
+                //     EstimatedPopulation: data.EstimatedPopulation,
+                //     Location: (data.Lat, data.Long),
+                // };
+                this.setState({
+                    results: data
+                });
+            })
+            .catch((err) => console.log(err));
     }
     handleChange(e) {
         this.setState({
-          [e.target.name]: e.target.value,
+            Zipcode: e.target.value,
         });
-      }
+    }
 
     render() {
         let display;
-        if(!this.state.Results.ResultList) {
-            display = <p>Try a different one</p>;
+        if (!this.state.Zipcode) {
+            display = <p>Loading...</p>;
         } else {
-            console.log(this.state.zip);
+            console.log("HEYOOO");
             display = (
                 <>
-                <ul>
-                    {this.state.Results.ResultList.map((Results) => <li key= { Results }> {Results} </li>)}
-                
-                </ul>
+                    <div>
+                        {this.state.results.map(result => {
+                            return (
+                                <div key={result.RecordNumber}>
+                                    <h1>{result
+                                        .LocationText}</h1>
+                                    <ul>
+                                        <li>State: {result
+                                            .State}</li>
+                                        <li>Total Wages: {result
+                                            .TotalWages}</li>
+                                        <li>Estimated Population: {result
+                                            .EstimatedPopulation}</li>
+                                        <li>Location: {result
+                                            .Location}</li>
+                                    </ul>
+                                </div>
+                            )
+                        })}
+
+                    </div>
                 </>
             );
         }
-
-        return( 
-        <div>
-            <p> Enter The Zipcode You Want to retrieve</p>
-            <input
-                type= "text"
-                name = "zip"
-                defaultValue = {this.state.zip}
-                onChange={(e) => this.handleChange(e)} >
-            </input>
-            <div className ="zipcode">{display}</div>
-        </div>
+        return (
+            <div>
+                <p> Enter Zipcode to retrieve city </p>
+                <input
+                    type="text"
+                    name="Zipcode"
+                    defaultValue={this.state.Zipcode}
+                    onChange={(e) => this.handleChange(e)} >
+                </input>
+                <div className="Zipcode">{display}</div>
+            </div>
         );
     }
 }
-
 export default Zipcode;
